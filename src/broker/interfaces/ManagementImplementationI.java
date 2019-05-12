@@ -1,4 +1,4 @@
-package broker;
+package broker.interfaces;
 
 public interface ManagementImplementationI {
 	
