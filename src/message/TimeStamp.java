@@ -3,10 +3,7 @@ package message;
 import java.io.Serializable;
 
 public class TimeStamp implements Serializable {
-
-	/**
-	 * 
-	 */
+	
 	private static final long serialVersionUID = 1L;
 	
 	private long time;
@@ -18,8 +15,7 @@ public class TimeStamp implements Serializable {
 	}
 	
 	public boolean isInitialised() {
-		if((this.time != -1)&&(this.timestamper != null)) return true;
-		else return false;
+		return (this.time != -1)  && (this.timestamper != null)
 	}
 	
 	public long getTime() {
