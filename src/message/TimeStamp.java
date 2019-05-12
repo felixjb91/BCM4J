@@ -15,7 +15,7 @@ public class TimeStamp implements Serializable {
 	}
 	
 	public boolean isInitialised() {
-		return (this.time != -1)  && (this.timestamper != null)
+		return (this.time != -1)  && (this.timestamper != null);
 	}
 	
 	public long getTime() {
