@@ -9,7 +9,9 @@ import java.util.Set;
 import bcm.extend.AbstractComponent;
 import broker.interfaces.ManagementI;
 import broker.interfaces.PublicationI;
-
+import broker.ports.ManagementInboundPort;
+import broker.ports.PublicationInboundPort;
+import broker.ports.ReceptionOutboundPort;
 import fr.sorbonne_u.components.annotations.OfferedInterfaces;
 import message.MessageFilterI;
 import message.MessageI;
@@ -23,10 +25,28 @@ public class BrokerImpl extends AbstractComponent {
 	private Map<String, Set<Subscriber>> subscriptions;
 	private Map<String, Set<MessageI>> messages;
 	private Set<String> topics;
+	private ManagementInboundPort mangeInPort;
+	private ReceptionOutboundPort recOutPort;
+	private PublicationInboundPort pubInPort;
 	
 	
-	public BrokerImpl(int nbThreads, int nbSchedulableThreads) {
+	public BrokerImpl(int nbThreads, int nbSchedulableThreads, String mangeInPortUri,
+						String recOutPortUri, String pubInPortUri) throws Exception
+	{
 		super(nbThreads, nbSchedulableThreads);
+		
+		this.mangeInPort = new ManagementInboundPort(mangeInPortUri, this);
+		this.recOutPort = new ReceptionOutboundPort(recOutPortUri, this);
+		this.pubInPort = new PublicationInboundPort(pubInPortUri, this);
+		
+		this.addPort(mangeInPort);
+		this.addPort(recOutPort);
+		this.addPort(pubInPort);
+		
+		this.mangeInPort.publishPort();
+		this.recOutPort.publishPort();
+		this.pubInPort.publishPort();
+		
 		subscriptions = new HashMap<>();
 		messages = new HashMap<>();
 		topics = new HashSet<>();
@@ -55,9 +75,7 @@ public class BrokerImpl extends AbstractComponent {
 	}
 	
 	public void subscribe(String topic, String inboundPortUri) throws Exception {
-		if(isTopic(topic)) {
-			addOnMap(subscriptions, topic, new Subscriber(inboundPortUri));
-		}
+		this.subscribe(topic, null, inboundPortUri);
 	}
 	
 	public void subscribe(String[] topics, String inboundPortUri) throws Exception {
@@ -68,7 +86,11 @@ public class BrokerImpl extends AbstractComponent {
 	
 	public void subscribe(String topic, MessageFilterI filter, String inboundPortUri) throws Exception {
 		if(isTopic(topic)) {
-			addOnMap(subscriptions, topic, new Subscriber(inboundPortUri));
+			addOnMap(subscriptions, topic, new Subscriber(inboundPortUri, filter));
+		}
+		else {
+			String msg = String.format("you can not subscribe to %s because it does not exist", topic);
+			throw new Exception(msg);
 		}
 	}
 	
@@ -87,31 +109,35 @@ public class BrokerImpl extends AbstractComponent {
 	}
 	
 	public void publish(MessageI m, String topic) throws Exception {
+		
 		if(isTopic(topic)) {
 			addOnMap(messages, topic, m);
 		}
-		
 	}
+	
 	public void publish(MessageI m, String[] topics) throws Exception {
 		
 		for(String topic : topics) {
 			publish(m, topic);
 		}
-		
 	}
+	
 	public void publish(MessageI[] ms, String topic)  throws Exception {
 		
 		for(MessageI m : ms) {
 			publish(m, topic);
 		}
-		
-	}
-	public void publish(MessageI[] ms, String[] topics)  throws Exception {
-		
 	}
 	
-
-
+	public void publish(MessageI[] ms, String[] topics)  throws Exception {
+		
+		for(MessageI m : ms) {
+			for(String topic : topics) {
+				publish(m, topic);
+			}
+		}
+	}
+	
 }
 
 class Subscriber {

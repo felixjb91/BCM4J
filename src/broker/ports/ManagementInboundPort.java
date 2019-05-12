@@ -12,7 +12,7 @@ public class ManagementInboundPort
 {
 	private static final long serialVersionUID = 1L;
 
-	public ManagementInboundPort(ComponentI owner, String uri) throws Exception {
+	public ManagementInboundPort(String uri, ComponentI owner) throws Exception {
 		super(uri, ManagementI.class, owner);
 		assert owner instanceof BrokerImpl;
 	}
