@@ -1,4 +1,4 @@
-package publisher;
+package broker.interfaces;
 
 import message.MessageI;
 
