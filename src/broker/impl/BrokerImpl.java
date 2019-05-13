@@ -113,6 +113,7 @@ public class BrokerImpl extends AbstractComponent {
 		if(isTopic(topic)) {
 			addOnMap(messages, topic, m);
 		}
+		
 	}
 	
 	public void publish(MessageI m, String[] topics) throws Exception {
