@@ -13,6 +13,7 @@ import broker.ports.ManagementInboundPort;
 import broker.ports.PublicationInboundPort;
 import broker.ports.ReceptionOutboundPort;
 import fr.sorbonne_u.components.annotations.OfferedInterfaces;
+import fr.sorbonne_u.components.exceptions.ComponentShutdownException;
 import message.MessageFilterI;
 import message.MessageI;
 
@@ -23,33 +24,41 @@ import static bcm.extend.Utils.getOnSet;;
 public class BrokerImpl extends AbstractComponent {
 	
 	private Map<String, Set<Subscriber>> subscriptions;
-	private Map<String, Set<MessageI>> messages;
 	private Set<String> topics;
-	private ManagementInboundPort mangeInPort;
-	private ReceptionOutboundPort recOutPort;
-	private PublicationInboundPort pubInPort;
+	private ManagementInboundPort managementInboundPort;
+	private ReceptionOutboundPort receptionOutboundPort;
+	private PublicationInboundPort publicationInboundPort;
 	
+	public BrokerImpl(String mangeInPortUri, String recOutPortUri, String pubInPortUri) throws Exception
+	{
+		this(1, 0, mangeInPortUri,recOutPortUri, pubInPortUri);
+	}
 	
-	public BrokerImpl(int nbThreads, int nbSchedulableThreads, String mangeInPortUri,
-						String recOutPortUri, String pubInPortUri) throws Exception
+	public BrokerImpl(int nbThreads, int nbSchedulableThreads, String managementInboundPortUri,
+						String receptionOutboundPortUri, String publicationInboundPortUri) throws Exception
 	{
 		super(nbThreads, nbSchedulableThreads);
 		
-		this.mangeInPort = new ManagementInboundPort(mangeInPortUri, this);
-		this.recOutPort = new ReceptionOutboundPort(recOutPortUri, this);
-		this.pubInPort = new PublicationInboundPort(pubInPortUri, this);
+		assert managementInboundPortUri != null;
+		assert receptionOutboundPortUri != null;
+		assert publicationInboundPortUri != null;
 		
-		this.addPort(mangeInPort);
-		this.addPort(recOutPort);
-		this.addPort(pubInPort);
+		this.managementInboundPort = new ManagementInboundPort(managementInboundPortUri, this);
+		this.receptionOutboundPort = new ReceptionOutboundPort(receptionOutboundPortUri, this);
+		this.publicationInboundPort = new PublicationInboundPort(publicationInboundPortUri, this);
 		
-		this.mangeInPort.publishPort();
-		this.recOutPort.publishPort();
-		this.pubInPort.publishPort();
+		this.addPort(managementInboundPort);
+		this.addPort(receptionOutboundPort);
+		this.addPort(publicationInboundPort);
 		
-		subscriptions = new HashMap<>();
-		messages = new HashMap<>();
-		topics = new HashSet<>();
+		this.managementInboundPort.publishPort();
+		this.receptionOutboundPort.publishPort();
+		this.publicationInboundPort.publishPort();
+		
+		this.subscriptions = new HashMap<>();
+		this.topics = new HashSet<>();
+		
+		this.tracer.setTitle("broker component");
 	}
 	
 	public void createTopic(String topic) throws Exception {
@@ -111,10 +120,14 @@ public class BrokerImpl extends AbstractComponent {
 	public void publish(MessageI m, String topic) throws Exception {
 		
 		if(isTopic(topic)) {
-			addOnMap(messages, topic, m);
+			subscriptions.get(topic)
+						 .parallelStream()
+						 .filter(s -> s.filterMessage(m))
+						 .forEach(s -> {});
 		}
 		
 	}
+	
 	
 	public void publish(MessageI m, String[] topics) throws Exception {
 		
@@ -139,6 +152,47 @@ public class BrokerImpl extends AbstractComponent {
 		}
 	}
 	
+	@Override
+	public void finalise() throws Exception {
+		
+		this.doPortDisconnection(this.managementInboundPort.getPortURI());
+		this.doPortDisconnection(this.publicationInboundPort.getPortURI());
+		this.doPortDisconnection(this.receptionOutboundPort.getPortURI());
+		
+		super.finalise();
+	}
+	
+	
+	@Override
+	public void shutdown() throws ComponentShutdownException {
+		
+		try {
+			this.managementInboundPort.unpublishPort();
+			this.publicationInboundPort.unpublishPort();
+			this.receptionOutboundPort.unpublishPort();
+		}
+		catch(Exception e) {
+			throw new ComponentShutdownException(e);
+		}
+		
+		super.shutdown();
+	}
+	
+	@Override
+	public void shutdownNow() throws ComponentShutdownException
+	{
+		try {
+			this.managementInboundPort.unpublishPort();
+			this.publicationInboundPort.unpublishPort();
+			this.receptionOutboundPort.unpublishPort();
+		}
+		catch(Exception e) {
+			throw new ComponentShutdownException(e);
+		}
+		
+		super.shutdownNow();
+	}
+
 }
 
 class Subscriber {
@@ -162,6 +216,10 @@ class Subscriber {
 	
 	public String getSubscriber() {
 		return subscriber;
+	}
+	
+	public boolean filterMessage(MessageI m) {
+		return this.getFilter().isPresent() | this.getFilter().get().filter(m);
 	}
 	
 	public Optional<MessageFilterI> getFilter() {
