@@ -1,7 +1,7 @@
 package connectors;
 
-import broker.interfaces.PublicationI;
 import fr.sorbonne_u.components.connectors.AbstractConnector;
+import interfaces.PublicationI;
 import message.MessageI;
 
 

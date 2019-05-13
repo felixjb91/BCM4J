@@ -1,9 +1,9 @@
 package broker.ports;
 
 import broker.impl.BrokerImpl;
-import broker.interfaces.ManagementI;
 import fr.sorbonne_u.components.ComponentI;
 import fr.sorbonne_u.components.ports.AbstractInboundPort;
+import interfaces.ManagementI;
 import message.MessageFilterI;
 
 public class ManagementInboundPort 

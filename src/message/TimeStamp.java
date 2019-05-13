@@ -1,6 +1,8 @@
 package message;
 
 import java.io.Serializable;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 public class TimeStamp implements Serializable {
 	
@@ -8,7 +10,7 @@ public class TimeStamp implements Serializable {
 	
 	private long time;
 	private String timestamper;
-	
+	public TimeStamp() {}
 	public TimeStamp(long time, String timestamper) {
 		this.time = time;
 		this.timestamper = timestamper;

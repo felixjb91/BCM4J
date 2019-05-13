@@ -1,4 +1,4 @@
-package broker.interfaces;
+package interfaces;
 
 import message.MessageFilterI;
 

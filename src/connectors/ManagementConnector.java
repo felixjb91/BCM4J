@@ -1,8 +1,8 @@
 package connectors;
 
 
-import broker.interfaces.ManagementI;
 import fr.sorbonne_u.components.connectors.AbstractConnector;
+import interfaces.ManagementI;
 import message.MessageFilterI;
 
 public class ManagementConnector 

@@ -1,10 +1,10 @@
 package publisher.ports;
 
-import broker.interfaces.PublicationI;
 import fr.sorbonne_u.components.ComponentI;
 import fr.sorbonne_u.components.ports.AbstractOutboundPort;
+import interfaces.PublicationI;
 import message.MessageI;
-import publisher.impl.Pusblisher;
+import publisher.impl.Publisher;
 
 
 public class PusblisherOutboundPort1 extends AbstractOutboundPort implements PublicationI {
@@ -16,13 +16,13 @@ public class PusblisherOutboundPort1 extends AbstractOutboundPort implements Pub
 
 	public PusblisherOutboundPort1(ComponentI owner) throws Exception {
 		super(PublicationI.class, owner);
-		assert	owner instanceof Pusblisher ;
+		assert	owner instanceof Publisher ;
 	}
 
 	public PusblisherOutboundPort1(String uri, ComponentI owner) 
 		throws Exception {
 		super(uri, PublicationI.class, owner);
-		assert	owner instanceof Pusblisher ;
+		assert	owner instanceof Publisher ;
 	}
 
 	@Override

@@ -1,28 +1,24 @@
 package publisher.ports;
 
-import broker.interfaces.ManagementI;
 import fr.sorbonne_u.components.ComponentI;
 import fr.sorbonne_u.components.ports.AbstractOutboundPort;
+import interfaces.ManagementI;
 import message.MessageFilterI;
-import publisher.impl.Pusblisher;
+import publisher.impl.Publisher;
 
 public class PusblisherOutboundPort2 extends AbstractOutboundPort implements ManagementI {
 
-	
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 
 	public PusblisherOutboundPort2(ComponentI owner) throws Exception {
 		super(ManagementI.class, owner);
-		assert	owner instanceof Pusblisher ;
+		assert	owner instanceof Publisher ;
 	}
 
 	public PusblisherOutboundPort2(String uri, ComponentI owner) 
 		throws Exception {
 		super(uri, ManagementI.class, owner);
-		assert	owner instanceof Pusblisher ;
+		assert	owner instanceof Publisher ;
 	}
 	
 	@Override
