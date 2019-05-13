@@ -31,11 +31,8 @@ public class ManagementInboundPort
 	public void createTopic(String topic) throws Exception {
 		
 		this.owner()
-			.handleRequestSync(
-				() -> { 
-						this.owner().createTopic(topic);
-						return null; 
-					  }
+			.handleRequestAsync(
+				() ->  this.owner().createTopic(topic)	
 			);
 	}
 	
@@ -43,11 +40,8 @@ public class ManagementInboundPort
 	public void createTopics(String[] topics) throws Exception {
 
 		this.owner()
-			.handleRequestSync(
-				() -> { 
-						this.owner().createTopics(topics);
-						return null; 
-					  }
+			.handleRequestAsync(
+				() -> this.owner().createTopics(topics)
 			);		
 	}
 
@@ -55,11 +49,8 @@ public class ManagementInboundPort
 	public void destroyTopic(String topic) throws Exception {
 		
 		this.owner()
-			.handleRequestSync(
-				() -> { 
-						this.owner().destroyTopic(topic);
-						return null; 
-					  }
+			.handleRequestAsync(
+				() -> this.owner().destroyTopic(topic)
 			);
 	}
 
@@ -85,11 +76,8 @@ public class ManagementInboundPort
 	public void subscribe(String topic, String inboundPortUri) throws Exception {
 		
 		this.owner()
-			.handleRequestSync(
-				() -> { 
-						this.owner().subscribe(topic, inboundPortUri);
-						return null; 
-					  }
+			.handleRequestAsync(
+				() -> this.owner().subscribe(topic, inboundPortUri)
 			);
 	}
 
@@ -97,11 +85,8 @@ public class ManagementInboundPort
 	public void subscribe(String[] topics, String inboundPortUri) throws Exception {
 		
 		this.owner()
-			.handleRequestSync(
-				() -> { 
-						this.owner().subscribe(topics, inboundPortUri);
-						return null; 
-					  }
+			.handleRequestAsync(
+				() -> this.owner().subscribe(topics, inboundPortUri)
 			);
 	}
 
@@ -109,11 +94,8 @@ public class ManagementInboundPort
 	public void subscribe(String topic, MessageFilterI filter, String inboundPortUri) throws Exception {
 		
 		this.owner()
-			.handleRequestSync(
-				() -> { 
-						this.owner().subscribe(topic, filter, inboundPortUri);
-						return null; 
-					  }
+			.handleRequestAsync(
+				() -> this.owner().subscribe(topic, filter, inboundPortUri)
 			);
 	}
 
@@ -121,11 +103,8 @@ public class ManagementInboundPort
 	public void modifyFilter(String topic, MessageFilterI newFilter, String inboundPortUri) throws Exception {
 		
 		this.owner()
-			.handleRequestSync(
-				() -> { 
-						this.owner().modifyFilter(topic, newFilter, inboundPortUri);
-						return null; 
-					  }
+			.handleRequestAsync(
+				() -> this.owner().modifyFilter(topic, newFilter, inboundPortUri)
 			);
 	}
 
@@ -133,11 +112,8 @@ public class ManagementInboundPort
 	public void unsubscribe(String topic, String inboundPortUri) throws Exception {
 		
 		this.owner()
-			.handleRequestSync(
-				() -> { 
-						this.owner().unsubscribe(topic, inboundPortUri);
-						return null; 
-					  }
+			.handleRequestAsync(
+				() -> this.owner().unsubscribe(topic, inboundPortUri)
 			);
 	}
 }
