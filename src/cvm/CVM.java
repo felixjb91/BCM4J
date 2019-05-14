@@ -1,5 +1,6 @@
 package cvm;
 
+import bcm.extend.Environment;
 import broker.implementation.Broker;
 import connectors.ManagementConnector;
 import connectors.PublicationsConnector;
@@ -27,6 +28,8 @@ public class CVM extends AbstractCVM {
 
 	@Override
 	public void deploy() throws Exception {
+		
+		new Environment(true);
 		
 		Broker b = new Broker(BROKER_MAN_IN, BROKER_REC_OUT, BROKER_PUB_IN);
 		Publisher p = new Publisher(PUBLISHER_PUB_OUT ,PUBLISHER_MAN_OUT) ;

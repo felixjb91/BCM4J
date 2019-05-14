@@ -1,7 +1,7 @@
 package subscriber.implementation;
 
 import bcm.extend.AbstractComponent;
-import bcm.extend.Environement;
+import bcm.extend.Environment;
 import fr.sorbonne_u.components.annotations.OfferedInterfaces;
 import fr.sorbonne_u.components.annotations.RequiredInterfaces;
 import fr.sorbonne_u.components.exceptions.ComponentShutdownException;
@@ -49,7 +49,7 @@ public class Subscriber
 	}
 	
 	public void acceptMessage(MessageI m) throws Exception {
-		Environement.logInfo(
+		Environment.logInfo(
 					String.format("%s received %s", this.componenetName, m.toString())
 				);
 	}
