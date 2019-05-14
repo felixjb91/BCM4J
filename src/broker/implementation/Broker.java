@@ -71,6 +71,8 @@ public class Broker extends AbstractComponent {
 	
 	public void createTopic(String topic) throws Exception {
 		topics.add(topic);
+		for(String t: topics) System.out.print(t+" ");
+		System.out.println();
 	}
 	
 	public void createTopics(String[] topics) throws Exception {
@@ -81,6 +83,8 @@ public class Broker extends AbstractComponent {
 	
 	public void destroyTopic(String topic) throws Exception {
 		topics.remove(topic);
+		for(String t: topics) System.out.print(t+" ");
+		System.out.println();
 	}
 	
 	public boolean isTopic(String topic) throws Exception {
@@ -146,6 +150,9 @@ public class Broker extends AbstractComponent {
 							 }
 						 });
 		}
+		//System.out.println("publish Broker -> message: "+m.toString()+" , topic: "+topic);
+		for(String t: topics) System.out.print(t+" ");
+		System.out.println();
 		
 	}
 	
