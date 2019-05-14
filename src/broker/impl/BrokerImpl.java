@@ -13,13 +13,16 @@ import broker.ports.ManagementInboundPort;
 import broker.ports.PublicationInboundPort;
 import broker.ports.ReceptionOutboundPort;
 import fr.sorbonne_u.components.annotations.OfferedInterfaces;
+import fr.sorbonne_u.components.annotations.RequiredInterfaces;
 import fr.sorbonne_u.components.exceptions.ComponentShutdownException;
 import message.MessageFilterI;
 import message.MessageI;
+import subscriber.interfaces.ReceptionI;
 
 import static bcm.extend.Utils.addOnMap;
 import static bcm.extend.Utils.getOnSet;;
 
+@RequiredInterfaces(required = {ReceptionI.class})
 @OfferedInterfaces(offered = {ManagementI.class, PublicationI.class})
 public class BrokerImpl extends AbstractComponent {
 	
@@ -28,6 +31,7 @@ public class BrokerImpl extends AbstractComponent {
 	private ManagementInboundPort managementInboundPort;
 	private ReceptionOutboundPort receptionOutboundPort;
 	private PublicationInboundPort publicationInboundPort;
+	
 	
 	public BrokerImpl(String mangeInPortUri, String recOutPortUri, String pubInPortUri) throws Exception
 	{

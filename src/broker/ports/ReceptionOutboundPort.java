@@ -5,7 +5,7 @@ import broker.impl.BrokerImpl;
 import fr.sorbonne_u.components.ComponentI;
 import fr.sorbonne_u.components.ports.AbstractOutboundPort;
 import message.MessageI;
-import subscriber.ReceptionI;
+import subscriber.interfaces.ReceptionI;
 
 
 public class ReceptionOutboundPort 

@@ -1,6 +1,8 @@
 package message;
 
 import java.io.Serializable;
+import java.sql.Timestamp;
+import java.time.LocalDate;
 
 public class TimeStamp implements Serializable {
 	
@@ -14,8 +16,14 @@ public class TimeStamp implements Serializable {
 		this.timestamper = timestamper;
 	}
 	
+	public TimeStamp() 
+		Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+		this.time = timestamp.getTime();
+		this.timestamper = timestamp.toString();
+	}
+	
 	public boolean isInitialised() {
-		return (this.time != -1)  && (this.timestamper != null);
+		return (this.time != 0)  && (this.timestamper != null);
 	}
 	
 	public long getTime() {
