@@ -1,4 +1,4 @@
-package broker.impl;
+package broker.implementation;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -13,15 +13,18 @@ import broker.ports.ManagementInboundPort;
 import broker.ports.PublicationInboundPort;
 import broker.ports.ReceptionOutboundPort;
 import fr.sorbonne_u.components.annotations.OfferedInterfaces;
+import fr.sorbonne_u.components.annotations.RequiredInterfaces;
 import fr.sorbonne_u.components.exceptions.ComponentShutdownException;
 import message.MessageFilterI;
 import message.MessageI;
+import subscriber.interfaces.ReceptionI;
 
 import static bcm.extend.Utils.addOnMap;
 import static bcm.extend.Utils.getOnSet;;
 
+@RequiredInterfaces(required = {ReceptionI.class})
 @OfferedInterfaces(offered = {ManagementI.class, PublicationI.class})
-public class BrokerImpl extends AbstractComponent {
+public class Broker extends AbstractComponent {
 	
 	private Map<String, Set<Subscriber>> subscriptions;
 	private Set<String> topics;
@@ -29,12 +32,13 @@ public class BrokerImpl extends AbstractComponent {
 	private ReceptionOutboundPort receptionOutboundPort;
 	private PublicationInboundPort publicationInboundPort;
 	
-	public BrokerImpl(String mangeInPortUri, String recOutPortUri, String pubInPortUri) throws Exception
+	
+	public Broker(String mangeInPortUri, String recOutPortUri, String pubInPortUri) throws Exception
 	{
 		this(1, 0, mangeInPortUri,recOutPortUri, pubInPortUri);
 	}
 	
-	public BrokerImpl(int nbThreads, int nbSchedulableThreads, String managementInboundPortUri,
+	public Broker(int nbThreads, int nbSchedulableThreads, String managementInboundPortUri,
 						String receptionOutboundPortUri, String publicationInboundPortUri) throws Exception
 	{
 		super(nbThreads, nbSchedulableThreads);
@@ -60,9 +64,11 @@ public class BrokerImpl extends AbstractComponent {
 		
 		this.tracer.setTitle("broker component");
 	}
+
 	
 	public void createTopic(String topic) throws Exception {
 		topics.add(topic);
+		this.logMessage("creation du topic"+topic);
 	}
 	
 	public void createTopics(String[] topics) throws Exception {
@@ -80,7 +86,7 @@ public class BrokerImpl extends AbstractComponent {
 	}
 	
 	public String[] getTopics() throws Exception {
-		return topics.toArray(new String[topics.size()]);
+		return topics.toArray(new String[0]);
 	}
 	
 	public void subscribe(String topic, String inboundPortUri) throws Exception {
@@ -120,10 +126,8 @@ public class BrokerImpl extends AbstractComponent {
 	public void publish(MessageI m, String topic) throws Exception {
 		
 		if(isTopic(topic)) {
-			subscriptions.get(topic)
-						 .parallelStream()
-						 .filter(s -> s.filterMessage(m))
-						 .forEach(s -> {});
+			((ReceptionI) receptionOutboundPort).acceptMessage(m);
+			System.out.println("publish END !!");
 		}
 		
 	}
@@ -151,18 +155,7 @@ public class BrokerImpl extends AbstractComponent {
 			}
 		}
 	}
-	
-	@Override
-	public void finalise() throws Exception {
 		
-		this.doPortDisconnection(this.managementInboundPort.getPortURI());
-		this.doPortDisconnection(this.publicationInboundPort.getPortURI());
-		this.doPortDisconnection(this.receptionOutboundPort.getPortURI());
-		
-		super.finalise();
-	}
-	
-	
 	@Override
 	public void shutdown() throws ComponentShutdownException {
 		

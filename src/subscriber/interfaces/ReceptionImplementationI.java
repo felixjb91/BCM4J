@@ -1,4 +1,4 @@
-package subscriber;
+package subscriber.interfaces;
 
 import message.MessageI;
 

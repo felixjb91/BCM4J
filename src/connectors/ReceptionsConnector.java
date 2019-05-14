@@ -2,7 +2,7 @@ package connectors;
 
 import fr.sorbonne_u.components.connectors.AbstractConnector;
 import message.MessageI;
-import subscriber.ReceptionI;
+import subscriber.interfaces.ReceptionI;
 
 public class ReceptionsConnector 
 	   extends AbstractConnector 
