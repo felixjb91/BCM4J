@@ -21,6 +21,7 @@ public class CVM extends AbstractCVM {
 	protected static final String SUBSCRIBER_REC_IN = "SUBSCRIBER_RECEPTION_IN_PORT_URI";
 	protected static final String SUBSCRIBER_MAN_OUT = "SUBSCRIBER_MANAGEMENT_OUT_PORT_URI";
 
+	protected static final String	CONCURRENT_BROKER_URI = "cbu" ;
 	
 	public CVM() throws Exception {
 		super();
@@ -31,9 +32,9 @@ public class CVM extends AbstractCVM {
 		
 		new Environment(true);
 		
-		Broker b = new Broker(BROKER_MAN_IN, BROKER_REC_OUT, BROKER_PUB_IN);
-		Publisher p = new Publisher(PUBLISHER_PUB_OUT ,PUBLISHER_MAN_OUT) ;
-		Subscriber s = new Subscriber(SUBSCRIBER_MAN_OUT, SUBSCRIBER_REC_IN) ;
+		Broker b = new Broker(CONCURRENT_BROKER_URI, 5);
+		Publisher p = new Publisher(CONCURRENT_BROKER_URI) ;
+		Subscriber s = new Subscriber(CONCURRENT_BROKER_URI) ;
 		
 		p.toggleTracing() ;
 		b.toggleTracing() ;

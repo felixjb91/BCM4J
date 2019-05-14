@@ -1,10 +1,18 @@
 package publisher.implementation;
 
+import broker.interfaces.ManagementI;
 import broker.interfaces.ManagementImplementationI;
+import broker.interfaces.PublicationI;
 import broker.interfaces.PublicationsImplementationI;
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.cvm.AbstractCVM;
+import fr.sorbonne_u.components.examples.chm.connectors.MapReadingConnector;
+import fr.sorbonne_u.components.examples.chm.connectors.MapWritingConnector;
+import fr.sorbonne_u.components.examples.chm.interfaces.MapReading;
+import fr.sorbonne_u.components.examples.chm.interfaces.MapWriting;
 import fr.sorbonne_u.components.exceptions.ComponentShutdownException;
+import fr.sorbonne_u.components.reflection.connectors.ReflectionConnector;
+import fr.sorbonne_u.components.reflection.ports.ReflectionOutboundPort;
 import message.Message;
 import message.MessageI;
 import publisher.ports.PublicationOutbountPort;
@@ -17,13 +25,15 @@ implements PublicationsImplementationI, ManagementImplementationI {
 	
 	protected PublicationOutbountPort publicationOutboundPort;
 	protected ManagementOutboundPort managementOutboundPort;
-
-	public Publisher(String publicationOutboundPortUri, String managementOutboundPortUri) throws Exception {
+	protected final String	chmReflectionIBPUri ;
+	
+	public Publisher(String chmReflectionIBPUri) throws Exception {
 		
-		super(1, 0);
+		super(1, 5);
 		
-		assert publicationOutboundPortUri != null;
-		assert managementOutboundPortUri != null;
+		assert	chmReflectionIBPUri != null ;
+		this.chmReflectionIBPUri = chmReflectionIBPUri ;
+		
 		// create the port that exposes the required interface
 		this.publicationOutboundPort = new PublicationOutbountPort(publicationOutboundPortUri, this);
 		this.managementOutboundPort = new ManagementOutboundPort(managementOutboundPortUri, this);
@@ -93,7 +103,36 @@ implements PublicationsImplementationI, ManagementImplementationI {
 	
 	@Override
 	public void execute() throws Exception {
-		super.execute();
+				
+		super.execute() ;
+
+		ReflectionOutboundPort rop = new ReflectionOutboundPort(this) ;
+		this.addPort(rop) ;
+		rop.publishPort() ;
+
+		this.doPortConnection(rop.getPortURI(),
+							  chmReflectionIBPUri,
+							  ReflectionConnector.class.getCanonicalName());
+		String[] publiIBPURI =
+				rop.findInboundPortURIsFromInterface(PublicationI.class) ;
+		assert	publiIBPURI != null && publiIBPURI.length == 1 ;
+		this.doPortConnection(
+				this.publicationOutboundPort.getPortURI(),
+				publiIBPURI[0],
+				MapReadingConnector.class.getCanonicalName()) ;
+
+		String[] manageIBPURI =
+				rop.findInboundPortURIsFromInterface(ManagementI.class) ;
+		assert	manageIBPURI != null && manageIBPURI.length == 1 ;
+		this.doPortConnection(
+				this.managementOutboundPort.getPortURI(),
+				manageIBPURI[0],
+				MapWritingConnector.class.getCanonicalName()) ;
+
+		this.doPortDisconnection(rop.getPortURI()) ;
+		rop.unpublishPort() ;
+		rop.destroyPort() ;
+
 		String[] lesTopics = {"tpoic1", "tpoic2", "tpoic3"};
 		String[] lesTopics2 = {"tpoic3", "tpoic4"};
 		createTopics(lesTopics);

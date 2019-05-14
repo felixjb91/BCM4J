@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import bcm.extend.AbstractComponent;
 import broker.interfaces.ManagementI;
@@ -28,28 +29,43 @@ public class Broker extends AbstractComponent {
 	
 	private Map<String, Set<Subscriber>> subscriptions;
 	private Set<String> topics;
+	
 	private ManagementInboundPort managementInboundPort;
 	private ReceptionOutboundPort receptionOutboundPort;
 	private PublicationInboundPort publicationInboundPort;
 	
+	public static final String	PUBLI_ACCESS_HANDLER_URI = "pah" ;
+	public static final String	RACEP_ACCESS_HANDLER_URI = "rah" ;
+	public static final String	MANAG_ACCESS_HANDLER_URI = "mah" ;
+
+	private final ReentrantReadWriteLock hashMapLock ;
 	
-	public Broker(String mangeInPortUri, String recOutPortUri, String pubInPortUri) throws Exception
+
+	public Broker(String reflectionInboundPortURI, int nbReadingThreads) throws Exception
 	{
-		this(1, 0, mangeInPortUri,recOutPortUri, pubInPortUri);
-	}
-	
-	public Broker(int nbThreads, int nbSchedulableThreads, String managementInboundPortUri,
-						String receptionOutboundPortUri, String publicationInboundPortUri) throws Exception
-	{
-		super(nbThreads, nbSchedulableThreads);
+		super(reflectionInboundPortURI, 1, 0) ;
+		assert	reflectionInboundPortURI != null ;
 		
-		assert managementInboundPortUri != null;
-		assert receptionOutboundPortUri != null;
-		assert publicationInboundPortUri != null;
+		this.hashMapLock = new ReentrantReadWriteLock() ;
 		
-		this.managementInboundPort = new ManagementInboundPort(managementInboundPortUri, this);
-		this.receptionOutboundPort = new ReceptionOutboundPort(receptionOutboundPortUri, this);
-		this.publicationInboundPort = new PublicationInboundPort(publicationInboundPortUri, this);
+		this.createNewExecutorService(PUBLI_ACCESS_HANDLER_URI,
+									nbReadingThreads,
+									false);
+		this.createNewExecutorService(RACEP_ACCESS_HANDLER_URI,
+									nbReadingThreads,
+									false);
+		this.createNewExecutorService(MANAG_ACCESS_HANDLER_URI,
+									nbReadingThreads,
+									false);
+		
+		
+		this.receptionOutboundPort = new ReceptionOutboundPort(this);
+		this.managementInboundPort = new ManagementInboundPort(
+				this.getExecutorServiceIndex(MANAG_ACCESS_HANDLER_URI),
+				this);
+		this.publicationInboundPort = new PublicationInboundPort(
+				this.getExecutorServiceIndex(PUBLI_ACCESS_HANDLER_URI), 
+				this);
 		
 		this.addPort(managementInboundPort);
 		this.addPort(receptionOutboundPort);
@@ -67,8 +83,10 @@ public class Broker extends AbstractComponent {
 
 	
 	public void createTopic(String topic) throws Exception {
+		this.hashMapLock.writeLock().lock() ;
 		topics.add(topic);
 		this.logMessage("creation du topic"+topic);
+		this.hashMapLock.writeLock().unlock() ;
 	}
 	
 	public void createTopics(String[] topics) throws Exception {
@@ -78,15 +96,31 @@ public class Broker extends AbstractComponent {
 	}
 	
 	public void destroyTopic(String topic) throws Exception {
+		this.hashMapLock.writeLock().lock() ;
 		topics.remove(topic);
+		this.hashMapLock.writeLock().unlock() ;
 	}
 	
 	public boolean isTopic(String topic) throws Exception {
-		return topics.contains(topic);
+		boolean res = false;
+		this.hashMapLock.readLock().lock() ;
+		try {
+			res = topics.contains(topic);
+		}finally {
+			this.hashMapLock.readLock().unlock() ;
+		}
+		return res;
 	}
 	
 	public String[] getTopics() throws Exception {
-		return topics.toArray(new String[0]);
+		String[] res = null;
+		this.hashMapLock.readLock().lock() ;
+		try {
+			res = topics.toArray(new String[0]);
+		}finally {
+			this.hashMapLock.readLock().unlock() ;
+		}
+		return res;
 	}
 	
 	public void subscribe(String topic, String inboundPortUri) throws Exception {
@@ -100,6 +134,7 @@ public class Broker extends AbstractComponent {
 	}
 	
 	public void subscribe(String topic, MessageFilterI filter, String inboundPortUri) throws Exception {
+		this.hashMapLock.writeLock().lock() ;
 		if(isTopic(topic)) {
 			addOnMap(subscriptions, topic, new Subscriber(inboundPortUri, filter));
 		}
@@ -107,27 +142,31 @@ public class Broker extends AbstractComponent {
 			String msg = String.format("you can not subscribe to %s because it does not exist", topic);
 			throw new Exception(msg);
 		}
+		this.hashMapLock.writeLock().unlock() ;
 	}
 	
 	public void modifyFilter(String topic, MessageFilterI newFilter, String inboundPortUri) throws Exception {
+		this.hashMapLock.writeLock().lock() ;
 		if(isTopic(topic) && subscriptions.containsKey(topic)) {
 			Subscriber subscriber = getOnSet(subscriptions.get(topic), new Subscriber(inboundPortUri));
 			subscriber.setFilter(newFilter);
 		}
+		this.hashMapLock.writeLock().unlock() ;
 	}
 	
 	public void unsubscribe(String topic, String inboundPortUri) throws Exception {
+		this.hashMapLock.writeLock().lock() ;
 		if(isTopic(topic) && subscriptions.containsKey(topic)) {
 			subscriptions.get(topic)
 						 .remove(new Subscriber(inboundPortUri));
 		}
+		this.hashMapLock.writeLock().unlock() ;
 	}
 	
 	public void publish(MessageI m, String topic) throws Exception {
 		
 		if(isTopic(topic)) {
 			((ReceptionI) receptionOutboundPort).acceptMessage(m);
-			System.out.println("publish END !!");
 		}
 		
 	}

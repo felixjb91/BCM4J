@@ -4,16 +4,26 @@ public abstract class AbstractComponent
 	   extends fr.sorbonne_u.components.AbstractComponent
 	   implements ComponentI
 {
+	protected final int	executorIndex = -1 ;
+	
+	
 
 	public AbstractComponent(int nbThreads, int nbSchedulableThreads) {
 		super(nbThreads, nbSchedulableThreads);
+		// TODO Auto-generated constructor stub
 	}
-	
+
+
+	public AbstractComponent(String reflectionInboundPortURI, int nbThreads, int nbSchedulableThreads) {
+		super(reflectionInboundPortURI, nbThreads, nbSchedulableThreads);
+		// TODO Auto-generated constructor stub
+	}
+
 
 	@Override
 	public <T> T handleRequestSync(SFunctionalComponentService<T> request) throws Exception {
 		
-		return this.handleRequestSync(
+		return this.handleRequestSync(executorIndex,
 					new AbstractComponent.AbstractService<T>() {
 						@Override
 						public T call() throws Exception {
