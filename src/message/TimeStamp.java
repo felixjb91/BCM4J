@@ -2,7 +2,6 @@ package message;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
-import java.time.LocalDate;
 
 public class TimeStamp implements Serializable {
 	
@@ -16,7 +15,7 @@ public class TimeStamp implements Serializable {
 		this.timestamper = timestamper;
 	}
 	
-	public TimeStamp() 
+	public TimeStamp() {
 		Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 		this.time = timestamp.getTime();
 		this.timestamper = timestamp.toString();
@@ -29,12 +28,15 @@ public class TimeStamp implements Serializable {
 	public long getTime() {
 		return time;
 	}
+	
 	public void setTime(long time) {
 		this.time = time;
 	}
+	
 	public String getTimestamper() {
 		return timestamper;
 	}
+	
 	public void setTimestamper(String timestamper) {
 		this.timestamper = timestamper;
 	}

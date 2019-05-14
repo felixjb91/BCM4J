@@ -1,4 +1,4 @@
-package broker.impl;
+package broker.implementation;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -24,7 +24,7 @@ import static bcm.extend.Utils.getOnSet;;
 
 @RequiredInterfaces(required = {ReceptionI.class})
 @OfferedInterfaces(offered = {ManagementI.class, PublicationI.class})
-public class BrokerImpl extends AbstractComponent {
+public class Broker extends AbstractComponent {
 	
 	private Map<String, Set<Subscriber>> subscriptions;
 	private Set<String> topics;
@@ -33,12 +33,12 @@ public class BrokerImpl extends AbstractComponent {
 	private PublicationInboundPort publicationInboundPort;
 	
 	
-	public BrokerImpl(String mangeInPortUri, String recOutPortUri, String pubInPortUri) throws Exception
+	public Broker(String mangeInPortUri, String recOutPortUri, String pubInPortUri) throws Exception
 	{
 		this(1, 0, mangeInPortUri,recOutPortUri, pubInPortUri);
 	}
 	
-	public BrokerImpl(int nbThreads, int nbSchedulableThreads, String managementInboundPortUri,
+	public Broker(int nbThreads, int nbSchedulableThreads, String managementInboundPortUri,
 						String receptionOutboundPortUri, String publicationInboundPortUri) throws Exception
 	{
 		super(nbThreads, nbSchedulableThreads);

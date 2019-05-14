@@ -4,22 +4,23 @@ import broker.interfaces.PublicationI;
 import fr.sorbonne_u.components.ComponentI;
 import fr.sorbonne_u.components.ports.AbstractOutboundPort;
 import message.MessageI;
-import publisher.impl.PublisherImpl;
 
 
-public class PublicationOutbountPort extends AbstractOutboundPort implements PublicationI {
+public class PublicationOutbountPort 
+	   extends AbstractOutboundPort 
+	   implements PublicationI 
+{
 	
 	private static final long serialVersionUID = 1L;
 
 	public PublicationOutbountPort(ComponentI owner) throws Exception {
 		super(PublicationI.class, owner);
-		assert	owner instanceof PublisherImpl ;
+		assert	owner instanceof PublicationI;
 	}
 
-	public PublicationOutbountPort(String uri, ComponentI owner) 
-		throws Exception {
+	public PublicationOutbountPort(String uri, ComponentI owner) throws Exception {
 		super(uri, PublicationI.class, owner);
-		assert	owner instanceof PublisherImpl ;
+		assert	owner instanceof PublicationI;
 	}
 
 	@Override

@@ -1,10 +1,10 @@
-package CVM;
+package cvm;
 
-import broker.impl.BrokerImpl;
+import broker.implementation.Broker;
 import connectors.ManagementConnector;
 import connectors.PublicationsConnector;
 import fr.sorbonne_u.components.cvm.AbstractCVM;
-import publisher.impl.PublisherImpl;
+import publisher.implementation.Publisher;
 
 public class CVM extends AbstractCVM {
 
@@ -26,8 +26,8 @@ public class CVM extends AbstractCVM {
 	@Override
 	public void deploy() throws Exception {
 		
-		BrokerImpl b = new BrokerImpl(BROKER_MAN_IN, BROKER_REC_OUT, BROKER_PUB_IN);
-		PublisherImpl p = new PublisherImpl(PUBLISHER_PUB_OUT ,PUBLISHER_MAN_OUT) ;
+		Broker b = new Broker(BROKER_MAN_IN, BROKER_REC_OUT, BROKER_PUB_IN);
+		Publisher p = new Publisher(PUBLISHER_PUB_OUT ,PUBLISHER_MAN_OUT) ;
 		//Subscriber s = new Subscriber(URI6,URI7) ;
 		
 		p.toggleTracing() ;
