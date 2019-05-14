@@ -64,6 +64,7 @@ public class BrokerImpl extends AbstractComponent {
 		
 		this.tracer.setTitle("broker component");
 	}
+
 	
 	public void createTopic(String topic) throws Exception {
 		topics.add(topic);
@@ -84,7 +85,7 @@ public class BrokerImpl extends AbstractComponent {
 	}
 	
 	public String[] getTopics() throws Exception {
-		return topics.toArray(new String[topics.size()]);
+		return topics.toArray(new String[0]);
 	}
 	
 	public void subscribe(String topic, String inboundPortUri) throws Exception {
