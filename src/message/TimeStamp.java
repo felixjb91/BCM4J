@@ -16,7 +16,7 @@ public class TimeStamp implements Serializable {
 		this.timestamper = timestamper;
 	}
 	
-	public TimeStamp() 
+	public TimeStamp() {
 		Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 		this.time = timestamp.getTime();
 		this.timestamper = timestamp.toString();
