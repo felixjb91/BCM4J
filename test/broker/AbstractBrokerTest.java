@@ -70,7 +70,7 @@ public abstract class AbstractBrokerTest {
 	}
 	
 	@Test
-	public void publish() throws Exception {
+	public void publishTest() throws Exception {
 		
 	}
 		
