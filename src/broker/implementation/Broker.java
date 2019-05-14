@@ -1,9 +1,7 @@
 package broker.implementation;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -17,7 +15,6 @@ import broker.ports.ReceptionOutboundPort;
 import fr.sorbonne_u.components.annotations.OfferedInterfaces;
 import fr.sorbonne_u.components.annotations.RequiredInterfaces;
 import fr.sorbonne_u.components.exceptions.ComponentShutdownException;
-import fr.sorbonne_u.components.ports.PortI;
 import message.MessageFilterI;
 import message.MessageI;
 import subscriber.interfaces.ReceptionI;
@@ -105,7 +102,6 @@ public class Broker extends AbstractComponent {
 	public void subscribe(String topic, MessageFilterI filter, String inboundPortUri) throws Exception {
 		if(isTopic(topic)) {
 			addOnMap(subscriptions, topic, new Subscriber(inboundPortUri, filter));
-			this.logMessage("nouveau sub : '"+inboundPortUri+"' sur le topic '"+topic+"'");
 		}
 		else {
 			String msg = String.format("you can not subscribe to %s because it does not exist", topic);
