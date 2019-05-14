@@ -97,10 +97,11 @@ implements PublicationsImplementationI, ManagementImplementationI {
 		String[] lesTopics = {"tpoic1", "tpoic2", "tpoic3"};
 		String[] lesTopics2 = {"tpoic3", "tpoic4"};
 		createTopics(lesTopics);
-		publish(new Message("hello World"), lesTopics);
 		createTopics(lesTopics2);
-		destroyTopic("topic1");
-		destroyTopic("topic4");
+		Thread.sleep(1000L);
+		publish(new Message("hello World"), lesTopics);
+		//destroyTopic("topic1");
+		//destroyTopic("topic4");
 	}
 	
 	

@@ -71,8 +71,7 @@ public class Broker extends AbstractComponent {
 	
 	public void createTopic(String topic) throws Exception {
 		topics.add(topic);
-		for(String t: topics) System.out.print(t+" ");
-		System.out.println();
+		this.logMessage("creation du topic"+topic);
 	}
 	
 	public void createTopics(String[] topics) throws Exception {
@@ -83,8 +82,6 @@ public class Broker extends AbstractComponent {
 	
 	public void destroyTopic(String topic) throws Exception {
 		topics.remove(topic);
-		for(String t: topics) System.out.print(t+" ");
-		System.out.println();
 	}
 	
 	public boolean isTopic(String topic) throws Exception {
@@ -108,6 +105,7 @@ public class Broker extends AbstractComponent {
 	public void subscribe(String topic, MessageFilterI filter, String inboundPortUri) throws Exception {
 		if(isTopic(topic)) {
 			addOnMap(subscriptions, topic, new Subscriber(inboundPortUri, filter));
+			this.logMessage("nouveau sub : '"+inboundPortUri+"' sur le topic '"+topic+"'");
 		}
 		else {
 			String msg = String.format("you can not subscribe to %s because it does not exist", topic);
@@ -132,27 +130,9 @@ public class Broker extends AbstractComponent {
 	public void publish(MessageI m, String topic) throws Exception {
 		
 		if(isTopic(topic)) {
-			PortI[] ports = this.findPortsFromInterface(ReceptionI.class);
-			List<PortI> listPorts = Arrays.asList(ports);
-			subscriptions.get(topic)
-						 .parallelStream()
-						 .filter(s -> s.filterMessage(m))
-						 .forEach(s -> {
-							 try {
-							 	PortI port=null;
-								 for(int i=0; i<listPorts.size(); i++) {
-									 if(listPorts.get(i).getPortURI()==s.getSubscriber())
-										 port = listPorts.get(i);
-								 }
-								 if(port!=null) ((ReceptionI) port).acceptMessage(m);
-							 }catch(Exception e){
-								 e.getMessage();
-							 }
-						 });
+			((ReceptionI) receptionOutboundPort).acceptMessage(m);
+			System.out.println("publish END !!");
 		}
-		//System.out.println("publish Broker -> message: "+m.toString()+" , topic: "+topic);
-		for(String t: topics) System.out.print(t+" ");
-		System.out.println();
 		
 	}
 	

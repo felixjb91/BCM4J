@@ -5,6 +5,7 @@ import bcm.extend.Environment;
 import fr.sorbonne_u.components.annotations.OfferedInterfaces;
 import fr.sorbonne_u.components.annotations.RequiredInterfaces;
 import fr.sorbonne_u.components.exceptions.ComponentShutdownException;
+import message.Message;
 import message.MessageFilterI;
 import message.MessageI;
 import publisher.ports.ManagementOutboundPort;
@@ -55,9 +56,10 @@ public class Subscriber
 	
 	@Override
 	public void acceptMessage(MessageI m) throws Exception {
-		Environment.logInfo(
+		/*Environment.logInfo(
 					String.format("%s received %s", this.componenetName, m.toString())
-				);
+				);*/
+		this.logMessage(String.format("%s received %s", this.componenetName, m.toString()));
 	}
 	
 	@Override
@@ -93,6 +95,18 @@ public class Subscriber
 		}
 		
 		super.shutdownNow();
+	}
+	
+	@Override
+	public void execute() throws Exception {
+
+		
+		super.execute();
+		Thread.sleep(1000L);
+		String[] lesTopics = {"tpoic1", "tpoic2", "tpoic3"};
+		String[] lesTopics2 = {"tpoic3", "tpoic4"};
+		subscribe(lesTopics,this.recepetionInboundPort.getPortURI());
+		subscribe(lesTopics2,this.recepetionInboundPort.getPortURI());
 	}
 
 	@Override
