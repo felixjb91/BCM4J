@@ -1,10 +1,10 @@
 package bcm.extend;
 
-public class Environement {
+public class Environment {
 	
 	private static Logger logger;
 	
-	public Environement(boolean log) {
+	public Environment(boolean log) {
 		logger = new Logger(log);
 	}
 
