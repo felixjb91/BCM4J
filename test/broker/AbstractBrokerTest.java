@@ -9,13 +9,17 @@ import broker.interfaces.ManagementI;
 import broker.interfaces.PublicationI;
 import subscriber.implementation.Subscriber;
 
+import static bcm.extend.Utils.addOnMap;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+
+
 
 
 public abstract class AbstractBrokerTest {
@@ -61,9 +65,10 @@ public abstract class AbstractBrokerTest {
 		String topic = "Hello";
 		String inboundPortUri = "inboundPort";
 		broker.subscribe(topic, inboundPortUri);
-		/*Subscriber subscriber = new Subscriber(inboundPortUri,null);
-		Map<String,Set<Subscriber>> subscribers = {topic, subscriber};
-		assertArrayEquals(subscribers, broker.getSubscriber());*/
+		Subscriber subscriber = new Subscriber(inboundPortUri,null);
+		Map<String,Set<Subscriber>> subscribers = new HashMap<String,Set<Subscriber>>();
+		addOnMap(subscribers, topic, new Subscriber(inboundPortUri, null));
+		//assertThat(broker.getSubscriber(), IsMapContaining.hasEntry(topic, subscriber));
 		
 	}
 	
