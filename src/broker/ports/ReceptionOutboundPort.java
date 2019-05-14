@@ -1,7 +1,6 @@
 package broker.ports;
 
 
-import broker.impl.BrokerImpl;
 import fr.sorbonne_u.components.ComponentI;
 import fr.sorbonne_u.components.ports.AbstractOutboundPort;
 import message.MessageI;
@@ -9,19 +8,20 @@ import subscriber.interfaces.ReceptionI;
 
 
 public class ReceptionOutboundPort 
-extends AbstractOutboundPort 
-implements ReceptionI {
+	   extends AbstractOutboundPort 
+       implements ReceptionI 
+{
 
 	private static final long serialVersionUID = 1L;
 
 	public ReceptionOutboundPort(ComponentI owner) throws Exception {
 		super(ReceptionI.class, owner);
-		assert	owner instanceof BrokerImpl ;
+		assert owner instanceof ReceptionI;
 	}
 
 	public ReceptionOutboundPort(String uri, ComponentI owner) throws Exception {
 		super(uri, ReceptionI.class, owner);
-		assert	owner instanceof BrokerImpl ;
+		assert	owner instanceof ReceptionI;
 	}
 
 	@Override

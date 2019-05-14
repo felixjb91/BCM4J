@@ -1,6 +1,6 @@
 package broker;
 
-import broker.impl.BrokerImpl;
+import broker.implementation.Broker;
 import broker.interfaces.ManagementI;
 import broker.interfaces.PublicationI;
 import message.MessageFilterI;
@@ -8,10 +8,10 @@ import message.MessageI;
 
 public class TestableBrokerImpl implements ManagementI, PublicationI {
 	
-	private BrokerImpl broker = new BrokerImpl(1, 0, "mInPort", "rOutPort", "pInPort");
+	private Broker broker = new Broker(1, 0, "mInPort", "rOutPort", "pInPort");
 	
 	public TestableBrokerImpl() throws Exception {
-		broker = new BrokerImpl(1, 0, "mInPort", "rOutPort", "pInPort");
+		broker = new Broker(1, 0, "mInPort", "rOutPort", "pInPort");
 	}
 
 	@Override

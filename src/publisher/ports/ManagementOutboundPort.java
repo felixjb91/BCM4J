@@ -4,7 +4,6 @@ import broker.interfaces.ManagementI;
 import fr.sorbonne_u.components.ComponentI;
 import fr.sorbonne_u.components.ports.AbstractOutboundPort;
 import message.MessageFilterI;
-import publisher.impl.PublisherImpl;
 
 public class ManagementOutboundPort extends AbstractOutboundPort implements ManagementI {
 
@@ -12,13 +11,13 @@ public class ManagementOutboundPort extends AbstractOutboundPort implements Mana
 
 	public ManagementOutboundPort(ComponentI owner) throws Exception {
 		super(ManagementI.class, owner);
-		assert	owner instanceof PublisherImpl ;
+		assert	owner instanceof ManagementI;
 	}
 
 	public ManagementOutboundPort(String uri, ComponentI owner) 
 		throws Exception {
 		super(uri, ManagementI.class, owner);
-		assert	owner instanceof PublisherImpl ;
+		assert	owner instanceof ManagementI;
 	}
 	
 	@Override

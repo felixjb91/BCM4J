@@ -1,4 +1,4 @@
-package publisher.impl;
+package publisher.implementation;
 
 import broker.interfaces.ManagementImplementationI;
 import broker.interfaces.PublicationsImplementationI;
@@ -11,14 +11,14 @@ import publisher.ports.PublicationOutbountPort;
 import publisher.ports.ManagementOutboundPort;
 
 
-public class PublisherImpl 
+public class Publisher 
 extends AbstractComponent 
 implements PublicationsImplementationI, ManagementImplementationI {
 	
 	protected PublicationOutbountPort publicationOutboundPort;
 	protected ManagementOutboundPort managementOutboundPort;
 
-	public PublisherImpl(String publicationOutboundPortUri, String managementOutboundPortUri) throws Exception {
+	public Publisher(String publicationOutboundPortUri, String managementOutboundPortUri) throws Exception {
 		
 		super(1, 0);
 		
@@ -103,14 +103,6 @@ implements PublicationsImplementationI, ManagementImplementationI {
 		destroyTopic("topic4");
 	}
 	
-	@Override
-	public void	finalise() throws Exception
-	{		
-		this.doPortDisconnection(this.publicationOutboundPort.getPortURI());
-		this.doPortDisconnection(this.managementOutboundPort.getPortURI());
-		
-		super.finalise();
-	}
 	
 	@Override
 	public void shutdown() throws ComponentShutdownException {
