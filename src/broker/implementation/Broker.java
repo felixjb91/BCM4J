@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import bcm.extend.AbstractComponent;
+import bcm.extend.Environment;
 import broker.interfaces.ManagementI;
 import broker.interfaces.PublicationI;
 import broker.ports.ManagementInboundPort;
@@ -68,6 +69,7 @@ public class Broker extends AbstractComponent {
 	
 	public void createTopic(String topic) throws Exception {
 		topics.add(topic);
+		Environment.logInfo("create topic " +  topic);
 	}
 	
 	public void createTopics(String[] topics) throws Exception {
@@ -78,6 +80,7 @@ public class Broker extends AbstractComponent {
 	
 	public void destroyTopic(String topic) throws Exception {
 		topics.remove(topic);
+		Environment.logInfo("destroy topic " + topic);
 	}
 	
 	public boolean isTopic(String topic) throws Exception {
@@ -101,10 +104,11 @@ public class Broker extends AbstractComponent {
 	public void subscribe(String topic, MessageFilterI filter, String inboundPortUri) throws Exception {
 		if(isTopic(topic)) {
 			addOnMap(subscriptions, topic, new Subscriber(inboundPortUri, filter));
+			Environment.logInfo(String.format("%s subscribed to %s", inboundPortUri, topic));
 		}
 		else {
 			String msg = String.format("you can not subscribe to %s because it does not exist", topic);
-			throw new Exception(msg);
+			Environment.logWarnning(msg);
 		}
 	}
 	
@@ -112,6 +116,10 @@ public class Broker extends AbstractComponent {
 		if(isTopic(topic) && subscriptions.containsKey(topic)) {
 			Subscriber subscriber = getOnSet(subscriptions.get(topic), new Subscriber(inboundPortUri));
 			subscriber.setFilter(newFilter);
+			Environment.logInfo(String.format("filter edited for %s at the topic %s", inboundPortUri, topic));
+		}
+		else {
+			Environment.logWarnning("trying to modify existing filter, topic or subscription not found");
 		}
 	}
 	
@@ -119,6 +127,10 @@ public class Broker extends AbstractComponent {
 		if(isTopic(topic) && subscriptions.containsKey(topic)) {
 			subscriptions.get(topic)
 						 .remove(new Subscriber(inboundPortUri));
+			Environment.logInfo(String.format("%s unsbscribed at the topic %s", inboundPortUri, topic));
+		}
+		else {
+			Environment.logWarnning("trying to unsbscribe, topic or subscription not found");
 		}
 	}
 	
