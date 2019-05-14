@@ -103,14 +103,6 @@ implements PublicationsImplementationI, ManagementImplementationI {
 		destroyTopic("topic4");
 	}
 	
-	@Override
-	public void	finalise() throws Exception
-	{		
-		this.doPortDisconnection(this.publicationOutboundPort.getPortURI());
-		this.doPortDisconnection(this.managementOutboundPort.getPortURI());
-		
-		super.finalise();
-	}
 	
 	@Override
 	public void shutdown() throws ComponentShutdownException {

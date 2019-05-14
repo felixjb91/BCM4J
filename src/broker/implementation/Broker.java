@@ -156,18 +156,7 @@ public class Broker extends AbstractComponent {
 			}
 		}
 	}
-	
-	@Override
-	public void finalise() throws Exception {
 		
-		this.doPortDisconnection(this.managementInboundPort.getPortURI());
-		this.doPortDisconnection(this.publicationInboundPort.getPortURI());
-		this.doPortDisconnection(this.receptionOutboundPort.getPortURI());
-		
-		super.finalise();
-	}
-	
-	
 	@Override
 	public void shutdown() throws ComponentShutdownException {
 		

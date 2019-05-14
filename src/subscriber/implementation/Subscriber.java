@@ -15,7 +15,6 @@ import broker.interfaces.ManagementI;
 @OfferedInterfaces(offered = {ReceptionI.class})
 public class Subscriber 
 	   extends AbstractComponent
-	   implements ReceptionI
 { 
 
 	private static int i  = 0;
@@ -49,27 +48,16 @@ public class Subscriber
 		this.tracer.setTitle("subscriber component");
 	}
 	
-	@Override
 	public void acceptMessage(MessageI m) throws Exception {
 		Environement.logInfo(
 					String.format("%s received %s", this.componenetName, m.toString())
 				);
 	}
 
-	@Override
 	public void acceptMessages(MessageI[] ms) throws Exception {
 		for(MessageI m : ms) {
 			this.acceptMessage(m);
 		}
-	}
-	
-	@Override
-	public void	finalise() throws Exception {
-
-		this.doPortDisconnection(this.managementOutboundPort.getPortURI());
-		this.doPortDisconnection(this.recepetionInboundPort.getPortURI());
-
-		super.finalise();
 	}
 	
 	@Override
