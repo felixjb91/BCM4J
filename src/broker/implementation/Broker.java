@@ -115,6 +115,10 @@ public class Broker extends AbstractComponent {
 		}
 	}
 	
+	public Map<String,Set<Subscriber>> getSubscriber(){
+		return this.subscriptions;
+	}
+	
 	public void unsubscribe(String topic, String inboundPortUri) throws Exception {
 		if(isTopic(topic) && subscriptions.containsKey(topic)) {
 			subscriptions.get(topic)
