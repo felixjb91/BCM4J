@@ -9,9 +9,6 @@ import publisher.impl.Pusblisher;
 
 public class PusblisherOutboundPort1 extends AbstractOutboundPort implements PublicationI {
 	
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 
 	public PusblisherOutboundPort1(ComponentI owner) throws Exception {
