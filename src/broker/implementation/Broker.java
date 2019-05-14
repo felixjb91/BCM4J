@@ -68,6 +68,7 @@ public class Broker extends AbstractComponent {
 	
 	public void createTopic(String topic) throws Exception {
 		topics.add(topic);
+		this.logMessage("creation du topic"+topic);
 	}
 	
 	public void createTopics(String[] topics) throws Exception {
@@ -115,10 +116,6 @@ public class Broker extends AbstractComponent {
 		}
 	}
 	
-	public Map<String,Set<Subscriber>> getSubscriber(){
-		return this.subscriptions;
-	}
-	
 	public void unsubscribe(String topic, String inboundPortUri) throws Exception {
 		if(isTopic(topic) && subscriptions.containsKey(topic)) {
 			subscriptions.get(topic)
@@ -129,10 +126,8 @@ public class Broker extends AbstractComponent {
 	public void publish(MessageI m, String topic) throws Exception {
 		
 		if(isTopic(topic)) {
-			subscriptions.get(topic)
-						 .parallelStream()
-						 .filter(s -> s.filterMessage(m))
-						 .forEach(s -> {});
+			((ReceptionI) receptionOutboundPort).acceptMessage(m);
+			System.out.println("publish END !!");
 		}
 		
 	}
