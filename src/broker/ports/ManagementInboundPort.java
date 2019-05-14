@@ -1,6 +1,6 @@
 package broker.ports;
 
-import broker.impl.BrokerImpl;
+import broker.implementation.Broker;
 import broker.interfaces.ManagementI;
 import fr.sorbonne_u.components.ComponentI;
 import fr.sorbonne_u.components.ports.AbstractInboundPort;
@@ -14,16 +14,16 @@ public class ManagementInboundPort
 
 	public ManagementInboundPort(String uri, ComponentI owner) throws Exception {
 		super(uri, ManagementI.class, owner);
-		assert owner instanceof BrokerImpl;
+		assert owner instanceof Broker;
 	}
 	
 	public ManagementInboundPort(ComponentI owner) throws Exception {
 		super(ManagementI.class, owner);
-		assert owner instanceof BrokerImpl;
+		assert owner instanceof Broker;
 	}
 	
-	private BrokerImpl owner() {
-		return (BrokerImpl) owner;
+	private Broker owner() {
+		return (Broker) owner;
 	}
 	
 	
