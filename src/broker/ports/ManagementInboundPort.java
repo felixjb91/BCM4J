@@ -22,11 +22,21 @@ public class ManagementInboundPort
 		assert owner instanceof Broker;
 	}
 	
+	/**
+	 * @author Felix, Tahar, Christian, Jonathan
+	 * @return broker
+	 */
 	private Broker owner() {
 		return (Broker) owner;
 	}
 	
 	
+	/**
+	 * @author Felix, Tahar, Christian, Jonathan
+	 * @param String topic
+	 * Créer le sujet
+	 * @throws Exception
+	 */
 	@Override
 	public void createTopic(String topic) throws Exception {
 		
@@ -36,6 +46,12 @@ public class ManagementInboundPort
 			);
 	}
 	
+	/**
+	 * @author Felix, Tahar, Christian, Jonathan
+	 * @param String[] topics
+	 * Créer plusieurs sujets
+	 * @throws Exception
+	 */
 	@Override
 	public void createTopics(String[] topics) throws Exception {
 
@@ -44,7 +60,13 @@ public class ManagementInboundPort
 				() -> this.owner().createTopics(topics)
 			);		
 	}
-
+	
+	/**
+	 * @author Felix, Tahar, Christian, Jonathan
+	 * @param String topic
+	 * Supprime le sujet
+	 * @throws Exception
+	 */
 	@Override
 	public void destroyTopic(String topic) throws Exception {
 		
@@ -53,7 +75,13 @@ public class ManagementInboundPort
 				() -> this.owner().destroyTopic(topic)
 			);
 	}
-
+	
+	/**
+	 * @author Felix, Tahar, Christian, Jonathan
+	 * @param String topic
+	 * @return Vrai si le sujet existe sinon faux
+	 * @throws Exception
+	 */
 	@Override
 	public boolean isTopic(String topic) throws Exception {
 		
@@ -62,7 +90,12 @@ public class ManagementInboundPort
 						   () -> this.owner().isTopic(topic)
 					);		
 	}
-
+	
+	/**
+	 * @author Felix, Tahar, Christian, Jonathan
+	 * @return la liste des sujets
+	 * @throws Exception
+	 */
 	@Override
 	public String[] getTopics() throws Exception {
 		
@@ -71,7 +104,13 @@ public class ManagementInboundPort
 						   () -> this.owner().getTopics()
 					);	
 	}
-
+	
+	/**
+	 * @author Felix, Tahar, Christian, Jonathan
+	 * @param String topic
+	 * @param String inboundPortUri
+	 * Abonne  
+	 */
 	@Override
 	public void subscribe(String topic, String inboundPortUri) throws Exception {
 		
