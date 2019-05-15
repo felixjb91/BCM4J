@@ -17,6 +17,11 @@ public class ReceptionInboundPort
 		assert owner instanceof Subscriber;
 	}
 	
+	public ReceptionInboundPort(ComponentI owner) throws Exception {
+		super(ReceptionI.class, owner);
+		assert owner instanceof Subscriber;
+	}
+	
 	private Subscriber owner() {
 		return (Subscriber) this.owner;
 	}

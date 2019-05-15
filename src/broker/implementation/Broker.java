@@ -2,10 +2,12 @@ package broker.implementation;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.stream.Collectors;
 
 import bcm.extend.AbstractComponent;
 import broker.interfaces.ManagementI;
@@ -13,6 +15,7 @@ import broker.interfaces.PublicationI;
 import broker.ports.ManagementInboundPort;
 import broker.ports.PublicationInboundPort;
 import broker.ports.ReceptionOutboundPort;
+import connectors.ReceptionsConnector;
 import fr.sorbonne_u.components.annotations.OfferedInterfaces;
 import fr.sorbonne_u.components.annotations.RequiredInterfaces;
 import fr.sorbonne_u.components.exceptions.ComponentShutdownException;
@@ -29,13 +32,12 @@ public class Broker extends AbstractComponent {
 	
 	private Map<String, Set<Subscriber>> subscriptions;
 	private Set<String> topics;
+	private Map<String, ReceptionOutboundPort> receptionPorts = new HashMap<>();
 	
 	private ManagementInboundPort managementInboundPort;
-	private ReceptionOutboundPort receptionOutboundPort;
 	private PublicationInboundPort publicationInboundPort;
 	
 	public static final String	PUBLI_ACCESS_HANDLER_URI = "pah" ;
-	public static final String	RACEP_ACCESS_HANDLER_URI = "rah" ;
 	public static final String	MANAG_ACCESS_HANDLER_URI = "mah" ;
 
 	private final ReentrantReadWriteLock hashMapLock ;
@@ -51,15 +53,10 @@ public class Broker extends AbstractComponent {
 		this.createNewExecutorService(PUBLI_ACCESS_HANDLER_URI,
 									nbReadingThreads,
 									false);
-		this.createNewExecutorService(RACEP_ACCESS_HANDLER_URI,
-									nbReadingThreads,
-									false);
 		this.createNewExecutorService(MANAG_ACCESS_HANDLER_URI,
 									nbReadingThreads,
 									false);
 		
-		
-		this.receptionOutboundPort = new ReceptionOutboundPort(this);
 		this.managementInboundPort = new ManagementInboundPort(
 				this.getExecutorServiceIndex(MANAG_ACCESS_HANDLER_URI),
 				this);
@@ -68,24 +65,23 @@ public class Broker extends AbstractComponent {
 				this);
 		
 		this.addPort(managementInboundPort);
-		this.addPort(receptionOutboundPort);
 		this.addPort(publicationInboundPort);
 		
 		this.managementInboundPort.publishPort();
-		this.receptionOutboundPort.publishPort();
 		this.publicationInboundPort.publishPort();
 		
 		this.subscriptions = new HashMap<>();
 		this.topics = new HashSet<>();
 		
 		this.tracer.setTitle("broker component");
+		this.tracer.setRelativePosition(0, 0) ;
 	}
 
 	
 	public void createTopic(String topic) throws Exception {
 		this.hashMapLock.writeLock().lock() ;
 		topics.add(topic);
-		this.logMessage("creation du topic"+topic);
+		this.logMessage("creation du topic : '"+topic+"'");
 		this.hashMapLock.writeLock().unlock() ;
 	}
 	
@@ -98,6 +94,7 @@ public class Broker extends AbstractComponent {
 	public void destroyTopic(String topic) throws Exception {
 		this.hashMapLock.writeLock().lock() ;
 		topics.remove(topic);
+		this.logMessage("destruction du topic : '"+topic+"'");
 		this.hashMapLock.writeLock().unlock() ;
 	}
 	
@@ -137,6 +134,21 @@ public class Broker extends AbstractComponent {
 		this.hashMapLock.writeLock().lock() ;
 		if(isTopic(topic)) {
 			addOnMap(subscriptions, topic, new Subscriber(inboundPortUri, filter));
+			
+			if(!receptionPorts.containsKey(inboundPortUri)) {
+				ReceptionOutboundPort ROPort = new ReceptionOutboundPort(this);
+				this.addPort(ROPort);
+				ROPort.publishPort();
+				
+				this.doPortConnection(
+						ROPort.getPortURI(),
+						inboundPortUri,
+						ReceptionsConnector.class.getCanonicalName()) ;
+				
+				receptionPorts.put(inboundPortUri, ROPort);
+			}
+	
+			this.logMessage("nouvel abonné : "+inboundPortUri+" sur le topic : '"+topic+"'");
 		}
 		else {
 			String msg = String.format("you can not subscribe to %s because it does not exist", topic);
@@ -150,6 +162,7 @@ public class Broker extends AbstractComponent {
 		if(isTopic(topic) && subscriptions.containsKey(topic)) {
 			Subscriber subscriber = getOnSet(subscriptions.get(topic), new Subscriber(inboundPortUri));
 			subscriber.setFilter(newFilter);
+			this.logMessage("l'abonné "+inboundPortUri+" du topic : '"+topic+"' à ajouté un filtre");
 		}
 		this.hashMapLock.writeLock().unlock() ;
 	}
@@ -159,17 +172,26 @@ public class Broker extends AbstractComponent {
 		if(isTopic(topic) && subscriptions.containsKey(topic)) {
 			subscriptions.get(topic)
 						 .remove(new Subscriber(inboundPortUri));
+			this.logMessage("désabonnement de '"+inboundPortUri+"' du topic : '"+topic+"'");
 		}
 		this.hashMapLock.writeLock().unlock() ;
 	}
 	
 	public void publish(MessageI m, String topic) throws Exception {
-		
-		if(isTopic(topic)) {
-			((ReceptionI) receptionOutboundPort).acceptMessage(m);
-		}
-		
-	}
+		this.logMessage("publish le message '"+m.toString()+" sur le topic '"+topic
+				+"'");
+        List<Subscriber> subscribers = subscriptions.get(topic)
+        		.stream()
+        		.filter(s -> s.filterMessage(m))
+        		.collect(Collectors.toList());
+		//Set<Subscriber> subscribers = subscriptions.get(topic);
+        for(Subscriber s : subscribers) {
+               ReceptionOutboundPort outPort = this.receptionPorts.get(s.getSubscriber());
+               outPort.acceptMessage(m);
+
+        }
+
+  }
 	
 	
 	public void publish(MessageI m, String[] topics) throws Exception {
@@ -201,7 +223,6 @@ public class Broker extends AbstractComponent {
 		try {
 			this.managementInboundPort.unpublishPort();
 			this.publicationInboundPort.unpublishPort();
-			this.receptionOutboundPort.unpublishPort();
 		}
 		catch(Exception e) {
 			throw new ComponentShutdownException(e);
@@ -216,7 +237,6 @@ public class Broker extends AbstractComponent {
 		try {
 			this.managementInboundPort.unpublishPort();
 			this.publicationInboundPort.unpublishPort();
-			this.receptionOutboundPort.unpublishPort();
 		}
 		catch(Exception e) {
 			throw new ComponentShutdownException(e);
@@ -251,7 +271,7 @@ class Subscriber {
 	}
 	
 	public boolean filterMessage(MessageI m) {
-		return this.getFilter().isPresent() | this.getFilter().get().filter(m);
+		return !this.getFilter().isPresent() || this.getFilter().get().filter(m);
 	}
 	
 	public Optional<MessageFilterI> getFilter() {

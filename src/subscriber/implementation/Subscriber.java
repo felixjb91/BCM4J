@@ -4,7 +4,11 @@ import bcm.extend.AbstractComponent;
 import bcm.extend.Environment;
 import fr.sorbonne_u.components.annotations.OfferedInterfaces;
 import fr.sorbonne_u.components.annotations.RequiredInterfaces;
+import fr.sorbonne_u.components.examples.chm.connectors.MapReadingConnector;
+import fr.sorbonne_u.components.examples.chm.connectors.MapWritingConnector;
 import fr.sorbonne_u.components.exceptions.ComponentShutdownException;
+import fr.sorbonne_u.components.reflection.connectors.ReflectionConnector;
+import fr.sorbonne_u.components.reflection.ports.ReflectionOutboundPort;
 import message.Message;
 import message.MessageFilterI;
 import message.MessageI;
@@ -14,7 +18,10 @@ import subscriber.interfaces.ReceptionImplementationI;
 import subscriber.ports.ReceptionInboundPort;
 import broker.interfaces.ManagementI;
 import broker.interfaces.ManagementImplementationI;
+import broker.interfaces.PublicationI;
 import broker.interfaces.SubscriptionImplementationI;
+import connectors.ManagementConnector;
+import connectors.ReceptionsConnector;
 
 @RequiredInterfaces(required = {ManagementI.class})
 @OfferedInterfaces(offered = {ReceptionI.class})
@@ -29,21 +36,21 @@ public class Subscriber
 	private ManagementOutboundPort managementOutboundPort;
 	private ReceptionInboundPort recepetionInboundPort;
 	
-	public Subscriber(String managementOutboundPortUri, String recepetionInboundPortUri) throws Exception {
-		this(1, 0, managementOutboundPortUri, recepetionInboundPortUri);
-	}
+	protected final String chmReflectionIBPUri ;
+
 					
-	public Subscriber(int nbThreads, int nbSchedulableThreads, String managementOutboundPortUri,
-							String recepetionInboundPortUri) throws Exception {
+	public Subscriber(String chmReflectionIBPUri) throws Exception {
 		
-		super(nbThreads, nbSchedulableThreads);
-		assert managementOutboundPortUri != null;
-		assert recepetionInboundPortUri != null;
+		super(1, 5) ;
+
+		assert	chmReflectionIBPUri != null ;
+		
+		this.chmReflectionIBPUri = chmReflectionIBPUri ;
 		
 		this.componenetName = String.format("subscriber %d", ++i);
 		
-		this.managementOutboundPort = new ManagementOutboundPort(managementOutboundPortUri, this);
-		this.recepetionInboundPort = new ReceptionInboundPort(recepetionInboundPortUri, this);
+		this.managementOutboundPort = new ManagementOutboundPort(this);
+		this.recepetionInboundPort = new ReceptionInboundPort(this);
 		
 		this.addPort(managementOutboundPort);
 		this.addPort(recepetionInboundPort);
@@ -52,13 +59,11 @@ public class Subscriber
 		this.recepetionInboundPort.publishPort();
 		
 		this.tracer.setTitle("subscriber component");
+		this.tracer.setRelativePosition(1, 1) ;
 	}
 	
 	@Override
 	public void acceptMessage(MessageI m) throws Exception {
-		/*Environment.logInfo(
-					String.format("%s received %s", this.componenetName, m.toString())
-				);*/
 		this.logMessage(String.format("%s received %s", this.componenetName, m.toString()));
 	}
 	
@@ -97,41 +102,75 @@ public class Subscriber
 		super.shutdownNow();
 	}
 	
+
 	@Override
 	public void execute() throws Exception {
+				
+		super.execute() ;
 
+		logMessage("execute begin");
 		
-		super.execute();
-		Thread.sleep(1000L);
-		String[] lesTopics = {"tpoic1", "tpoic2", "tpoic3"};
-		String[] lesTopics2 = {"tpoic3", "tpoic4"};
+		ReflectionOutboundPort rop = new ReflectionOutboundPort(this) ;
+		this.addPort(rop) ;
+		rop.publishPort() ;
+		
+		this.doPortConnection(rop.getPortURI(),
+							  chmReflectionIBPUri,
+							  ReflectionConnector.class.getCanonicalName());
+
+		String[] manageIBPURI =
+				rop.findInboundPortURIsFromInterface(ManagementI.class) ;
+		
+		logMessage("execute 6");
+		
+		assert	manageIBPURI != null && manageIBPURI.length == 1 ;
+		
+		this.doPortConnection(
+				this.managementOutboundPort.getPortURI(),
+				manageIBPURI[0],
+				ManagementConnector.class.getCanonicalName()) ;
+		
+
+		this.doPortDisconnection(rop.getPortURI()) ;
+		rop.unpublishPort() ;
+		rop.destroyPort() ;
+		
+		Thread.sleep(2000L);
+		String[] lesTopics = {"topic1", "topic2", "topic3", "topic4"};
 		subscribe(lesTopics,this.recepetionInboundPort.getPortURI());
-		subscribe(lesTopics2,this.recepetionInboundPort.getPortURI());
+		
+		logMessage("execute end");
 	}
 
 	@Override
 	public void subscribe(String topic, String inboundPortUri) throws Exception {
 		this.managementOutboundPort.subscribe(topic,inboundPortUri);
+		this.logMessage("Abonnement de '"+inboundPortUri+"' au topic '"+topic+"' ");
 	}
 
 	@Override
 	public void subscribe(String[] topics, String inboundPortUri) throws Exception {
 		this.managementOutboundPort.subscribe(topics,inboundPortUri);
+		for(String t: topics)
+			this.logMessage("Abonnement de '"+inboundPortUri+"' au topic '"+t+"' ");
 	}
 
 	@Override
 	public void subscribe(String topic, MessageFilterI filter, String inboundPortUri) throws Exception {
 		this.managementOutboundPort.subscribe(topic, inboundPortUri);
+		this.logMessage("Abonnement de '"+inboundPortUri+"' au topic '"+topic+"' ");
 	}
 
 	@Override
 	public void modifyFilter(String topic, MessageFilterI newFilter, String inboundPortUri) throws Exception {
 		this.managementOutboundPort.modifyFilter(topic, newFilter, inboundPortUri);
+		this.logMessage("Modification/ajout de filtre par '"+inboundPortUri+"' au topic '"+topic+"' ");
 	}
 
 	@Override
 	public void unsubscribe(String topic, String inboundPortUri) throws Exception {
 		this.managementOutboundPort.unsubscribe(topic, inboundPortUri);
+		this.logMessage("Désabonnement de '"+inboundPortUri+"' du topic '"+topic+"' ");
 	}
 
 }
