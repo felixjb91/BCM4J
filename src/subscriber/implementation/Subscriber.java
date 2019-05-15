@@ -1,11 +1,9 @@
 package subscriber.implementation;
 
 import bcm.extend.AbstractComponent;
-import bcm.extend.Environment;
 import fr.sorbonne_u.components.annotations.OfferedInterfaces;
 import fr.sorbonne_u.components.annotations.RequiredInterfaces;
 import fr.sorbonne_u.components.exceptions.ComponentShutdownException;
-import message.Message;
 import message.MessageFilterI;
 import message.MessageI;
 import publisher.ports.ManagementOutboundPort;
@@ -13,7 +11,6 @@ import subscriber.interfaces.ReceptionI;
 import subscriber.interfaces.ReceptionImplementationI;
 import subscriber.ports.ReceptionInboundPort;
 import broker.interfaces.ManagementI;
-import broker.interfaces.ManagementImplementationI;
 import broker.interfaces.SubscriptionImplementationI;
 
 @RequiredInterfaces(required = {ManagementI.class})
@@ -56,9 +53,6 @@ public class Subscriber
 	
 	@Override
 	public void acceptMessage(MessageI m) throws Exception {
-		/*Environment.logInfo(
-					String.format("%s received %s", this.componenetName, m.toString())
-				);*/
 		this.logMessage(String.format("%s received %s", this.componenetName, m.toString()));
 	}
 	

@@ -61,10 +61,8 @@ public abstract class AbstractBrokerTest {
 	
 	@Test
 	public void subscribeTest() throws Exception {
-		Broker broker = new Broker(1, 0, null, null, null);
 		String topic = "Hello";
 		String inboundPortUri = "inboundPort";
-		broker.subscribe(topic, inboundPortUri);
 		Subscriber subscriber = new Subscriber(inboundPortUri,null);
 		Map<String,Set<Subscriber>> subscribers = new HashMap<String,Set<Subscriber>>();
 		addOnMap(subscribers, topic, new Subscriber(inboundPortUri, null));

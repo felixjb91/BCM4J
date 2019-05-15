@@ -100,8 +100,6 @@ implements PublicationsImplementationI, ManagementImplementationI {
 		createTopics(lesTopics2);
 		Thread.sleep(1000L);
 		publish(new Message("hello World"), lesTopics);
-		//destroyTopic("topic1");
-		//destroyTopic("topic4");
 	}
 	
 	
